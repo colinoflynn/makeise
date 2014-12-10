@@ -1,12 +1,13 @@
 MakeISE: Saving your Soul when using Xilinx Projects in GIT
 ===========================================================
 
-This is a simple script to automatically generate ISE project files from a commong input format. Features include:
+This is a simple Python script to automatically generate ISE project files from a commong input format. Features include:
 
 * Simple text-based entry format avoids git conflicts on .XISE projects
 * Generates COREGen files
 * Ability to change package/device within same family and automatically updated project file + coregen file
 * Progmatically generated Verilog file can be used as a 'setup' file which enables/disables features, allows use of a common code-base across multiple hardware versions
+* Single Python file makes integration into your project easy!
 
 If you've ever been involved in a project that requires you to support different hardware, you'll understand what a hassle the Xilinx project files are. They require you to manually recreate the COREGen files when changing even device package! This project hopes to solve these issues.
 
@@ -141,12 +142,36 @@ Check this by using the GUI to tweak your desired parameters, and seeing what ch
 
 __[Setup File]__
 
-This section is used for an automatically generated setup.v file. 
+This section is used for an automatically generated setup.v file. The following shows the resulting setup.v file that will be written to the given project directory:
 
+```
+//AUTOMATICALLY GENERATED - MAY BE OVERWRITTEN
+`define BOARD_REV2 
+`define UART_CLK 40000000
+`define UART_BAUD 512000
+```
 
 Running an Example
 ==================
 
+The following shows an example of running the makeise.py file:
+
+```
+mkdir demos/mydir
+cp demos/simplemodule.v demos/mydir/.
+cp demos/simpletop.v demos/mydir/.
+cp demos/system.ucf demos/mydir/.
+makeise.py demos/exampleProject.in demos/mydir/exampleProject.xise
+```
+
+Note I first had to copy files to my target directory! In real projects you might simply change the input file to appropriately reference your existing files - complex directory chains are OK! See the ChipWhisperer project for an example of such complex setups.
+
 Using MakeISE in your own Project
 =================================
+
+It's easy - just copy makeise.py to your appropriate location! You're done!
+
+You might want to make a batch file / shell script for running the Python file with appropriate arguments. Generally you want to make a directory to dump the generated files in to avoid polluting the main directory with everything.
+
+
 
