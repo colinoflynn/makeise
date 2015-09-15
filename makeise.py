@@ -24,6 +24,7 @@ class ISEModify(object):
         self.f = None
         self.ucfSeq = 0
         self.verilogSeq = 0
+        self.vhdlSeq = 0
         self.coregenSeq = 0
 
     def loadTemplate(self, tfile):
@@ -85,6 +86,17 @@ class ISEModify(object):
         self.f.insert(loc+1, fstr)
 
         self.verilogSeq += 1
+
+    def addVhdl(self, vhdlfile):
+        loc = self.findFilesIndex()
+
+        fstr =  '    <file xil_pn:name="%s" xil_pn:type="FILE_VHDL">\n'%vhdlfile
+        fstr +=  '      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="%d"/>\n'%self.vhdlSeq
+        fstr +=  '      <association xil_pn:name="Implementation" xil_pn:seqID="%d"/>\n'%self.vhdlSeq
+        fstr +=  '    </file>\n\n'
+        self.f.insert(loc+1, fstr)
+
+        self.vhdlSeq += 1
 
     def addCoregen(self, cfile):
         loc = self.findFilesIndex()
@@ -307,6 +319,17 @@ def main(args = None):
                 vf = makeRelPath(basedir, vf, outdir)
             ise.addVerilog(vf)
             print "   %s"%vf
+
+    print "**VHDL Sources:"
+    if config.has_section('VHDL Files'):
+        for vhdlf in config.options('VHDL Files'):
+            vhdlSetup = config.get('VHDL Files', vhdlf)
+            if vhdlSetup is not None:
+                parseVhdlSection(config, vhdlSetup, vhdlf, basedir, outdir) #CHECK THIS
+            else:
+                vhdlf = makeRelPath(basedir, vhdlf, outdir)
+            ise.addVhdl(vhdlf)
+            print "   %s"%vhdlf
 
     print "**UCF Files:"
     if config.has_section('UCF Files'):
